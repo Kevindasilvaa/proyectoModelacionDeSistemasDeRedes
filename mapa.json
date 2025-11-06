@@ -1,0 +1,24 @@
+{
+  "casa_javier": [54, 14],
+  "casa_andreina": [52, 13],
+  
+  "destinos": {
+    "The Darkness": [50, 14],
+    "La Pasión": [54, 11],
+    "Mi Rolita": [50, 12]
+  },
+  
+  "rango_calles": [50, 56],
+  "rango_carreras": [10, 16],
+  
+  "costos": {
+    "normal": 5,
+    "carrera_lenta": 7,
+    "calle_lenta": 10
+  },
+  
+  "reglas_costos": {
+    "carreras_lentas": [11, 12, 13],
+    "calles_lentas": [51]
+  }
+}
