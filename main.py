@@ -358,12 +358,16 @@ class App(customtkinter.CTk):
         output += "⏱️ SINCRONIZACIÓN:\n"
         if tiempo_j_final > tiempo_a_final:
             diferencia = tiempo_j_final - tiempo_a_final
-            output += f"  Andreína debe salir {diferencia} minutos antes que Javier.\n"
+            # Si Javier es más lento, él sale primero. Andreina espera.
+            output += f"  Javier sale primero.\n"
+            output += f"  Andreina debe salir {diferencia} minutos DESPUÉS de Javier.\n"
         elif tiempo_a_final > tiempo_j_final:
             diferencia = tiempo_a_final - tiempo_j_final
-            output += f"  Javier debe salir {diferencia} minutos antes que Andreína.\n"
+            # Si Andreina es más lenta, ella sale primero. Javier espera.
+            output += f"  Andreina sale primero.\n"
+            output += f"  Javier debe salir {diferencia} minutos DESPUÉS de Andreina.\n"
         else:
-            output += "  Ambos pueden salir al mismo tiempo.\n"
+            output += "  Ambos tienen el mismo tiempo. Pueden salir juntos.\n"
             
         self.draw_graph(javier_path=ruta_j_final, andreina_path=ruta_a_final)
         
