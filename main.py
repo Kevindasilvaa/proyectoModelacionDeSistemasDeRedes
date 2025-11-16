@@ -20,7 +20,7 @@ def find_shortest_path_dijkstra(graph, start, end):
     5. Guardamos el nodo "anterior" para reconstruir la ruta al final
     
     Parámetros:
-        graph: El grafo de NetworkX con nodos y aristas
+        graph: El grafo de NetworkX con nodos y aristas (es una lista de adyacencia)
         start: Nodo de inicio (tupla con coordenadas)
         end: Nodo de destino (tupla con coordenadas)
     
