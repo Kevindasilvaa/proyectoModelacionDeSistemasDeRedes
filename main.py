@@ -273,6 +273,20 @@ class App(customtkinter.CTk):
             button.pack(side="left", padx=8, pady=15)  # side="left" los alinea horizontalmente
             self.buttons.append(button)
 
+        # --- BOTÓN REINICIAR ---
+        # lo ponemos al final del mismo frame para que aparezca "al lado de Mi Rolita"
+        self.restart_button = customtkinter.CTkButton(
+            self.control_frame,
+            text="🔄 Reiniciar",
+            font=("Arial", 14, "bold"),
+            height=45,
+            corner_radius=10,
+            fg_color="#dc2626",
+            hover_color="#b91c1c",
+            command=self.restart_map
+        )
+        self.restart_button.pack(side="left", padx=8, pady=15)
+
         # --- MENSAJE INICIAL ---
         self.draw_graph()
         welcome_msg = """╔════════════════════════════════════════╗
@@ -306,7 +320,7 @@ class App(customtkinter.CTk):
     def show_error(self, message):
         self.results_textbox.insert("0.0", f"❌ {message}")
         self.results_textbox.configure(state="disabled")
-    
+
     def load_config_and_build_graphs(self, filename):
         with open(filename, 'r', encoding='utf-8') as f:
             config = json.load(f)
@@ -328,7 +342,9 @@ class App(customtkinter.CTk):
         self.G = nx.Graph()
         self.pos = {}
         self.node_colors = {}
-        edge_colors = {}
+        self.edge_colors = {}  # ahora lo necesitamos como dict para pintar después
+        self.carreras_lentas = carreras_lentas
+        self.calles_lentas = calles_lentas
         
         for c in self.CALLES:
             for k in self.CARRERAS:
@@ -349,18 +365,25 @@ class App(customtkinter.CTk):
                 if c - 1 in self.CALLES:
                     costo = COSTO_CARRERAS_LENTAS if k in carreras_lentas else COSTO_NORMAL
                     self.G.add_edge(node, (c - 1, k), weight=costo)
-                    edge_colors[(node, (c - 1, k))] = "#3a3a3a"
+                    # pintamos rojo si es carrera lenta
+                    self.edge_colors[(node, (c - 1, k))] = (
+                        "#ef4444" if k in carreras_lentas else "#3a3a3a"
+                    )
 
                 if k - 1 in self.CARRERAS:
                     costo = COSTO_CALLE_LENTA if c in calles_lentas else COSTO_NORMAL
                     self.G.add_edge(node, (c, k - 1), weight=costo)
-                    edge_colors[(node, (c, k - 1))] = "#3a3a3a"
+                    # pintamos rojo si es calle lenta
+                    self.edge_colors[(node, (c, k - 1))] = (
+                        "#ef4444" if c in calles_lentas else "#3a3a3a"
+                    )
                         
         self.node_color_list = [self.node_colors[node] for node in self.G.nodes()]
         
+        # lista de colores en el mismo orden que self.G.edges()
         self.edge_color_list = []
         for u, v in self.G.edges():
-            color = edge_colors.get((u, v), edge_colors.get((v, u), "#3a3a3a"))
+            color = self.edge_colors.get((u, v), self.edge_colors.get((v, u), "#3a3a3a"))
             self.edge_color_list.append(color)
     
     def draw_graph(self, javier_path=None, andreina_path=None):
@@ -377,7 +400,7 @@ class App(customtkinter.CTk):
         nx.draw_networkx(
             self.G, self.pos, ax=self.ax,
             node_color=self.node_color_list,
-            edge_color=self.edge_color_list,
+            edge_color=self.edge_color_list,  # <-- ya viene con rojos
             with_labels=False,
             node_size=300,
             width=2
@@ -415,6 +438,23 @@ class App(customtkinter.CTk):
             
         self.ax.set_axis_off()
         self.canvas.draw()
+
+    def restart_map(self):
+        # vuelve al estado inicial sin rutas
+        self.draw_graph()
+        self.results_textbox.configure(state="normal")
+        self.results_textbox.delete("0.0", "end")
+        welcome_msg = """╔════════════════════════════════════════╗
+║     🎉 BIENVENIDO AL CALCULADOR      ║
+╚════════════════════════════════════════╝
+
+✅ Mapa reiniciado – sin rutas trazadas
+
+📍 Selecciona un destino para comenzar
+   el análisis de rutas.
+"""
+        self.results_textbox.insert("0.0", welcome_msg)
+        self.results_textbox.configure(state="disabled")
 
     def get_path_cost_from_original_graph(self, path):
         cost = 0
